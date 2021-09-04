@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use experimental ('signatures');
 
+#Todo lib is not found
+use lib 'lib';
+use Exam_Parser;
+
 #############################################
 #   This file creates the empty exam file   #
 #   from a master file                      #
@@ -43,8 +47,6 @@ sub parseIntro($content) {
 #decoration line from master file
 my $decorationLine = "________________________________________________________________________________";
 
-#parse the entire exam with the Regex Grammar module from today's tutorial!
-#https://metacpan.org/pod/Regexp::Grammars
+my %parsed = Exam_Parser::parseExam($content);
 
-
-say $intro.$decorationLine;
+#say $intro.$decorationLine;
