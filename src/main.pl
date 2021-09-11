@@ -2,10 +2,11 @@ use v5.32;
 use strict;
 use warnings;
 use experimental ('signatures');
+use Data::Show;
 
-#Todo lib is not found
-use lib 'lib';
-use Exam_Parser;
+use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
+use Modules::Exam_Parser('parseExam');
+
 
 #############################################
 #   This file creates the empty exam file   #
@@ -44,9 +45,9 @@ sub parseIntro($content) {
     return "$1";
 }
 
-#decoration line from master file
-my $decorationLine = "________________________________________________________________________________";
 
-my %parsed = Exam_Parser::parseExam($content);
+my %parsedExam = parseExam($content);
+
+show (%parsedExam); #to show the entire data structure
 
 #say $intro.$decorationLine;
