@@ -8,9 +8,16 @@ use Exporter ('import');
 use Regexp::Grammars;
 use Data::Show;
 
-our @EXPORT = ('parseExam');
+our @EXPORT = ('parseExam', 'parseIntro');
 
-#parsing entire exam using grammars module
+
+#############################################
+#   This module parses the entire exam      #
+#   using the grammars module               #
+#############################################
+
+
+
 sub parseExam($content){
 
     my $exam_parser = qr{
@@ -63,6 +70,12 @@ sub parseExam($content){
         warn 'Not a valid exam file';
     }
 
+}
+
+#parse the intro of the master file
+sub parseIntro($content) {
+    $content =~ m/([^_]*[\n]*)/;
+    return "$1";
 }
 
 1; #return true

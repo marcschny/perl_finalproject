@@ -5,7 +5,8 @@ use experimental ('signatures');
 use Data::Show;
 
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
-use Modules::Exam_Parser('parseExam');
+use Modules::Exam_Parser('parseExam', 'parseIntro');
+use Modules::Create_Exam('createExam');
 
 
 #############################################
@@ -23,7 +24,7 @@ if(@ARGV != 1){
     $masterfile = $ARGV[0];
 }
 
-
+#store raw content
 my $content = readFile($masterfile);
 
 #open and read file
@@ -37,17 +38,17 @@ sub readFile($file){
 
 #say $content;
 
+#store parsed intro
 my $intro = parseIntro($content);
 
-#parse the intro of the master file
-sub parseIntro($content) {
-    $content =~ m/([^_]*[\n]*)/;
-    return "$1";
-}
-
-
+#store entire parsed exam
 my %parsedExam = parseExam($content);
 
-show (%parsedExam); #to show the entire data structure
+#show (%parsedExam);
+
+#store new created exam (w/ randomized answers)
+my $newExam = createExam($intro, %parsedExam);
+
+say $newExam;
 
 #say $intro.$decorationLine;
