@@ -6,6 +6,7 @@ use Data::Show;
 use Cwd;
 use File::Spec;
 use Time::Moment;
+use File::Basename;
 
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
@@ -13,9 +14,13 @@ use Modules::Create_Exam('createExam');
 
 
 #############################################
+#   MAIN TASK: PART 1A                      #
+#                                           #
 #   This file creates the empty exam file   #
 #   from a master file                      #
 #############################################
+
+
 
 my $masterfile;
 
@@ -30,7 +35,7 @@ if(@ARGV != 1){
 #store raw content
 my $content = readFile($masterfile);
 
-#open and read file
+#subroutine to open and read file
 sub readFile($file){
     open(my $fileHandle, "<", $file) or die "Can't open \"$file\": $!";
     my @lines = readline $fileHandle;
@@ -39,7 +44,6 @@ sub readFile($file){
     return $lines;
 }
 
-#say $content;
 
 #store parsed intro
 my $intro = parseIntro($content);
@@ -54,9 +58,9 @@ my $newExam = createExam($intro, %parsedExam);
 
 #say $newExam;
 
-
 saveFile($newExam);
 
+#subroutine to save the new generated file
 sub saveFile($examFile){
 
     #store current volume, directory and filename
@@ -70,9 +74,9 @@ sub saveFile($examFile){
     if(!-d "Generated"){
         my $newDirectory = "$projectRoot/Generated";
         mkdir($newDirectory) or die "Could not create $newDirectory directory, $!";
-        print "Created Directory!";
+        print "Created Directory '/Generated'!";
     }else{
-        print "Directory already exists!";
+        print "Directory '/Generated' already exists!";
     }
 
     #new filename
@@ -95,7 +99,5 @@ sub getOutputFilename(){
     #format datetime
     my $formattedDateTime = $dateTimeNow->strftime('%Y%m%d-%H%M%S');
 
-    return $formattedDateTime . '-' . 'IntroPerlEntryExam.txt';
+    return $formattedDateTime . '-' . basename($masterfile);
 }
-
-#say $intro.$decorationLine;
