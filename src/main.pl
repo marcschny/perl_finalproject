@@ -5,6 +5,7 @@ use experimental ('signatures');
 use Data::Show;
 use Cwd;
 use File::Spec;
+use Time::Moment;
 
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
@@ -74,12 +75,27 @@ sub saveFile($examFile){
         print "Directory already exists!";
     }
 
+    #new filename
+    my $newFilename = getOutputFilename();
+
     #create empty exam file in new 'Generated'-Directory
-    open(my $fh, ">", "$projectRoot/Generated/IntroPerlEntryExam.txt")
+    open(my $fh, ">", qq{$projectRoot/Generated/$newFilename})
         or die "Cannot open directory $projectRoot/Generated: $!";
     print $fh $examFile;
     close($fh);
 
+}
+
+#subroutine to get the new filename
+#returns a string consisting of the formatted datetime and the original filename
+sub getOutputFilename(){
+    #get datetime now
+    my $dateTimeNow = Time::Moment->now;
+
+    #format datetime
+    my $formattedDateTime = $dateTimeNow->strftime('%Y%m%d-%H%M%S');
+
+    return $formattedDateTime . '-' . 'IntroPerlEntryExam.txt';
 }
 
 #say $intro.$decorationLine;
