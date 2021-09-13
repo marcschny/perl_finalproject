@@ -11,6 +11,7 @@ use File::Basename;
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
 use Modules::Create_Exam('createExam');
+use Modules::Useful_Subs('readFile');
 
 
 #############################################
@@ -34,16 +35,6 @@ if(@ARGV != 1){
 
 #store raw content
 my $content = readFile($masterfile);
-
-#subroutine to open and read file
-sub readFile($file){
-    open(my $fileHandle, "<", $file) or die "Can't open \"$file\": $!";
-    my @lines = readline $fileHandle;
-    my $lines = join '', @lines;
-    close($fileHandle);
-    return $lines;
-}
-
 
 #store parsed intro
 my $intro = parseIntro($content);
