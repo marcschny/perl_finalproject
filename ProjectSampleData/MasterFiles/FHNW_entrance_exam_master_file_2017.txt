@@ -314,17 +314,6 @@ ________________________________________________________________________________
 ________________________________________________________________________________
 
 
-28. The keyword to throw an exception in Perl is:
-
-    [X] 'die'
-    [ ] 'throw'
-    [ ] 'raise'
-    [ ] 'except'
-    [ ] 'exit'
-
-________________________________________________________________________________
-
-
 29. How are exceptions are caught and accessed in Perl?
 
     [X] Caught in an 'eval' block;  accessed via the special $@ variable

@@ -61,17 +61,6 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
 
- 5. The main repository for Open Source Perl modules is:
-
-    [ ] Github
-    [ ] www.perl.org
-    [ ] CSPAN
-    [X] CPAN
-    [ ] Perlhub
-
-
-________________________________________________________________________________
-
  6. The three standard sigils for variable declarations are:
 
     [ ] '$' for numeric, '@' for emails, '%' for percentages
@@ -304,14 +293,15 @@ ________________________________________________________________________________
     [ ] sub two_or_more ($flag, $data = @extras) {...}
 
 
+
 ________________________________________________________________________________
 
 27. If a user-defined subroutine does not contain a 'return' statement...
 
     [ ] ...it will never return and will continue to execute forever
-    [ ] ...it return the value the last expression it actually evaluates
+    [X] ...it return the value the last expression it actually evaluates
     [ ] ...it will throw an exception after executing its final statement
-    [X] ...it return the value the final statement in its definition
+    [ ] ...it return the value the final statement in its definition
     [ ] ...it return 'undef'
 
 

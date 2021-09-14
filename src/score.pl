@@ -89,8 +89,60 @@ sub compare($string1, $string2){
     return distance(normalize($string1), normalize($string2));
 }
 
+##################
+
+my $studentContent = readFile($studentfiles[0]);
+
+my %studentParsedExam = parseExam($studentContent);
+
+my @studentExamComponent = @{$studentParsedExam{'exam'}->{'exam_component'}};
+
+my @studentQuestionAnswerBlocks = getQuestionAnswerBlocks(@studentExamComponent);
+
+##################
+
+calcScore($studentfiles[0], @studentQuestionAnswerBlocks);
+
 #calculate the score of the student exam file
 #compared to the master exam file
 sub calcScore($studentfile, @parsedExam){
+
+    my @errors;
+    my @missingQuestions;
+    my @missingAnswers;
+    my $score = 0;
+    my $answeredQuestions = 0;
+    my $correctAnswers = 0;
+    my $missingQuestions = 0;
+    my $questions = 0;
+
+    #offset used for missing questions
+    my $offset = 0;
+
+    foreach my $question(0..$#masterQuestionAnswerBlocks){
+
+        #if a missing question has been found: skip this loop
+        if(!exists($masterQuestionAnswerBlocks[$question + $offset])){next;}
+
+        #init master and student q&a-blocks as hashes
+        my %masterHash = %{$masterQuestionAnswerBlocks[$question + $offset]};
+        my %studentHash = %{$studentQuestionAnswerBlocks[$question]};
+
+        #check for missing questions
+        if(compare( @{$masterHash{"question"}}{"question_number"}, @{$studentHash{"question"}}{"question_number"} ) > 0){
+            say "Missing Question found: ". @{$masterHash{"question"}}{"question_number"} . $masterHash{'question'}{'text'};
+            $offset++; #increase offset for master
+            $missingQuestions++; #increase number of missing questions
+            push @missingQuestions, $masterHash{'question'}{'text'};
+        }
+
+    }
+
+    #print out each missing question
+    foreach my $missingQuestion(@missingQuestions){
+        say "Missing question: $missingQuestion";
+    }
+
+    say "Total questions not found: $missingQuestions";
 
 }
