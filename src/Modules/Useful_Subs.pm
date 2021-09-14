@@ -8,7 +8,7 @@ use Exporter ('import');
 use Regexp::Grammars;
 use Data::Show;
 
-our @EXPORT = ('readFile');
+our @EXPORT = ('readFile', 'remLinebreak', 'remLeadAndTrailWs');
 
 
 #############################################
@@ -24,4 +24,16 @@ sub readFile($file){
     my $lines = join '', @lines;
     close($fileHandle);
     return $lines;
+}
+
+#remove linebreaks
+sub remLinebreak($string){
+    $string =~ s/\R//g;
+    return $string;
+}
+
+#remove leading and trailing whitespaces
+sub remLeadAndTrailWs($string){
+    $string =~ s/^\s+|\s+$//g;
+    return $string;
 }

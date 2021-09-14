@@ -341,7 +341,6 @@ ________________________________________________________________________________
 
 30. What is the purpose of the 'use strict' pragma?
 
-    [ ] It prevents any construct that might also be valid C code
     [ ] It converts all warnings to fatal errors
     [ ] It reports all errors using verbose (and harshly worded) error messages
     [ ] It disallows undeclared variables, barewords, and symbolic references
