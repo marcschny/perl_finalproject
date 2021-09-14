@@ -108,17 +108,15 @@ calcScore($studentfiles[0], @studentQuestionAnswerBlocks);
 sub calcScore($studentfile, @parsedExam){
 
     my @errors;
-    my $score = 0;
     my $answeredQuestions = 0;
-    my $correctAnswers = 0;
     my $missingQuestions = 0;
     my $missingAnswers = 0;
     my $questions = 0;
+    my $score = 0;
 
     #offset used for missing questions
     my $offset = 0;
 
-    my $counter = 0;
 
     foreach my $question (0..$#masterQuestionAnswerBlocks){
 
@@ -130,6 +128,8 @@ sub calcScore($studentfile, @parsedExam){
         my %studentHash = %{$studentQuestionAnswerBlocks[$question]};
 
 
+        ##MISSING QUESTIONS
+
         #check for missing questions
         if(compare( @{$masterHash{"question"}}{"text"}, @{$studentHash{"question"}}{"text"} ) > 0){
             say "Missing Question found: ". @{$masterHash{"question"}}{"question_number"} . $masterHash{'question'}{'text'};
@@ -138,6 +138,10 @@ sub calcScore($studentfile, @parsedExam){
             push @errors, "Missing question found: " . $masterHash{'question'}{'text'};
             #%masterHash = %{$masterQuestionAnswerBlocks[$question + $offset]};
         }
+
+
+
+        ##MISSING/MISSPELLED ANSWERS
 
         #init arrays for master and student answers
         my @masterAnswers;
@@ -182,14 +186,59 @@ sub calcScore($studentfile, @parsedExam){
              }
         }
 
+
+        
+        ##SCORING
+
+        my $correctAnswer = ""; #correct answer
+        my $countX = 0; #number of Xs
+
+        #get correct answer from master
+        for my $answer (@{$masterHash{"answer"}}){
+            if($answer->{"checkbox"} eq "[X]"){
+                $correctAnswer = $answer->{"text"};
+            }
+        }
+
+        #check answer from student
+        for my $answer (@{$studentHash{"answer"}}){
+            #check for marked checkboxes ('X' or 'x')
+            if($answer->{"checkbox"} eq "[X]" || $answer->{"checkbox"} eq "[x]"){
+                $countX++; #increase counter for amount of checked boxes
+
+                #compare students checked answer to masters correct answer
+                my $cmp = compare($answer->{"text"}, $correctAnswer);
+
+                #increase correctAnswers
+                # only if one answer is checked and the comparison results in zero
+                if($countX == 1 && $cmp == 0){
+                    $score++;
+                    say "Correct answer: ".$answer->{"text"};
+                }
+
+                #increase answeredQuestions
+                # if a question is answered but not correctly (or multiple answers)
+                if($countX >= 1){
+                    $answeredQuestions++;
+                }
+            }
+
+        }
+
+
+
+
     }
 
+    #print out errors
     foreach my $error (@errors){
         say $error;
     }
 
+
     say "Total questions not found: $missingQuestions";
     say "Total missing or misspelled answers found: $missingAnswers";
-    say "Total counts: $counter";
+
+    say "Score: $score/$answeredQuestions";
 
 }
