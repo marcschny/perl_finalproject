@@ -27,11 +27,11 @@ Color::Output::Init;
 #############################################
 
 
-
+#input vars
 my $masterfile;
 my @studentfiles;
 
-#check for input
+#first check input (at least 2 args must been provided)
 if(@ARGV < 2){
     die "You need to provide at least 2 arguments: a masterfile and x student files!";
 }else{
@@ -44,18 +44,11 @@ if(@ARGV < 2){
     print "]\nwith masterfile [" . basename $masterfile . "]...\n\n";
 }
 
-
-#store raw content from masterfile
-my $masterContent = readFile($masterfile);
-
-#store entire parsed master exam
-my %masterParsedExam = parseExam($masterContent);
-
-#array with hashes (exam_component) from master
-my @masterExamComponent = @{$masterParsedExam{'exam'}->{'exam_component'}};
-
-#get question_and_answers blocks from master
-my @masterQuestionAnswerBlocks = getQuestionAnswerBlocks(@masterExamComponent);
+#get master content
+my $masterContent = readFile($masterfile);  #store raw content from masterfile
+my %masterParsedExam = parseExam($masterContent); #store entire parsed master exam
+my @masterExamComponent = @{$masterParsedExam{'exam'}->{'exam_component'}};  #array with hashes (exam_component) from master
+my @masterQuestionAnswerBlocks = getQuestionAnswerBlocks(@masterExamComponent);  #get question_and_answers-blocks from master
 
 
 #calculate score and print errors for each student file
@@ -69,6 +62,7 @@ for my $file (@studentfiles){
 }
 
 
+#get question_and_answers-blocks from exam_components
 sub getQuestionAnswerBlocks(@examComponent){
     my @questionAnswerBlocks;
     foreach my $elem(@examComponent){
@@ -83,7 +77,7 @@ sub getQuestionAnswerBlocks(@examComponent){
 #normalize a string:
 # -unicode case-folded lower case
 # -remove stopwords
-# -remove leading and traling whitespaces
+# -remove leading and trailing whitespaces
 sub normalize($string){
     my $allStopWords = getStopWords('en');
 
@@ -108,6 +102,7 @@ sub compare($string1, $string2){
 
 #calculate the score of the student exam file
 #compared to the master exam file
+#print outputs
 sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
     my @errors;
@@ -119,7 +114,7 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
     #offset used for missing questions
     my $offset = 0;
 
-
+    #loop through master questions
     foreach my $question (0..$#masterQuestionAnswerBlocks){
 
         #if a missing question has been found: skip this loop
@@ -130,20 +125,19 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
         my %studentHash = %{$studentQuestionAnswerBlocks[$question]};
 
 
-        ##MISSING QUESTIONS
+
+        ### MISSING QUESTIONS
 
         #check for missing questions
         if(compare( @{$masterHash{"question"}}{"text"}, @{$studentHash{"question"}}{"text"} ) > 0){
-            #say "Missing Question found: ". @{$masterHash{"question"}}{"question_number"} . $masterHash{'question'}{'text'};
             $offset++; #increase offset for master
             $missingQuestions++; #increase number of missing questions
             push @errors, "Missing question found: " . remLinebreak $masterHash{'question'}{'text'};
-            #%masterHash = %{$masterQuestionAnswerBlocks[$question + $offset]};
         }
 
 
 
-        ##MISSING/MISSPELLED ANSWERS
+        ### MISSING/MISSPELLED ANSWERS
 
         #init arrays for master and student answers
         my @masterAnswers;
@@ -174,7 +168,7 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
             #compare answers
             my $cmp = compare($masterAnswers[$i], $studentAnswers[$i-$answerOffset]);
             #if the comparison results in a distance bigger than zero
-             if( $cmp > 0){
+             if($cmp > 0){
                  $missingAnswers++; #increase missing/misspelled answers
                  #if the distance is equal or bigger than the master answer, then the student answer is missing
                  if($cmp >= length(normalize($masterAnswers[$i]))){
@@ -190,7 +184,7 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
 
 
-        ##SCORING
+        ### SCORING
 
         my $correctAnswer = ""; #correct answer
         my $countX = 0; #number of Xs
@@ -207,11 +201,10 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
         # 1 = answered
         my $questionAnswered = 0;
 
-        #check answer from student
+        #check answer from student and calculate scoring
         for my $answer (@{$studentHash{"answer"}}){
-            #check for marked checkboxes ('X' or 'x')
-            #todo check for other checkboxes too... like [ x] or [X ]
-            if($answer->{"checkbox"} eq "[X]" || $answer->{"checkbox"} eq "[x]"){
+            #check for marked checkboxes in different variations
+            if($answer->{"checkbox"} =~ /\[\s*[xX]\s*\]/){
                 $countX++; #increase counter for amount of checked boxes
 
                 #compare students checked answer to masters correct answer
@@ -221,7 +214,6 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
                 # only if one answer is checked and the comparison results in zero
                 if($countX == 1 && $cmp == 0){
                     $score++;
-                    #say "Correct answer: ".$answer->{"text"};
                 }
 
                 #increase answeredQuestions
@@ -234,9 +226,6 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
             }
 
         }
-
-
-
 
     }
 
@@ -255,17 +244,12 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
     #say "\n\tTotal questions not found: $missingQuestions";
     #say "\tTotal missing or misspelled answers found: $missingAnswers";
 
-    #print out errors
+    #print out errors in red
     foreach my $error (@errors){
-        cprint ("\0035   $error\n");   #print errors in red
+        cprint ("\0035   $error\n");
     }
 
     cprint ("\x030\n"); #switch back to white color
-
-
-
-
-
-
+    
 
 }
