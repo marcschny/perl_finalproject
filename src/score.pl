@@ -114,7 +114,6 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
     my $answeredQuestions = 0;
     my $missingQuestions = 0;
     my $missingAnswers = 0;
-    my $questions = 0;
     my $score = 0;
 
     #offset used for missing questions
@@ -203,6 +202,11 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
             }
         }
 
+        #bool to check if questions was already answered (to avoid multiple answeredQuestions)
+        # 0 = not answered
+        # 1 = answered
+        my $questionAnswered = 0;
+
         #check answer from student
         for my $answer (@{$studentHash{"answer"}}){
             #check for marked checkboxes ('X' or 'x')
@@ -222,8 +226,10 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
                 #increase answeredQuestions
                 # if a question is answered but not correctly (or multiple answers)
-                if($countX >= 1){
-                    $answeredQuestions++; #todo test this
+                # and if the questions hasn't been answered yet
+                if($countX >= 1 && $questionAnswered == 0){
+                    $answeredQuestions++;
+                    $questionAnswered = 1;
                 }
             }
 
