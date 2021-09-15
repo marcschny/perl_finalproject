@@ -231,7 +231,7 @@ ________________________________________________________________________________
 
     [ ] Values of any scalar or list type, indexed by keys that are always strings
     [ ] Values that are always strings, indexed by keys of any type
-    [x] Values of any scalar type, indexed by keys that are always strings
+    [ ] Values of any scalar type, indexed by keys that are always strings
     [ ] Random values, indexed by sequential keys of any type
     [ ] Values that are unique, indexed by keys that may be repeated
 
@@ -273,7 +273,7 @@ ________________________________________________________________________________
 
 24. User-defined subroutines are declared with the keyword:
 
-    [x] 'sub'
+    [ ] 'sub'
     [ ] 'subroutine'
     [ ] 'do'
     [ ] 'fun'
@@ -313,17 +313,6 @@ ________________________________________________________________________________
     [ ] ...it will throw an exception after executing its final statement
     [ ] ...it will return the value the final statement in its definition
     [ ] ...it will return 'undef'
-
-
-________________________________________________________________________________
-
-28. The keyword to throw an exception in Perl is:
-
-    [ ] 'except'
-    [ ] 'exit'
-    [x] 'die'
-    [ ] 'throw'
-    [ ] 'raise'
 
 
 ________________________________________________________________________________

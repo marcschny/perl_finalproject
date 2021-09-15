@@ -7,11 +7,15 @@ use Time::Moment;
 use File::Basename;
 use Lingua::StopWords ('getStopWords');
 use Text::Levenshtein ('distance');
+use Color::Output ('cprint');
 
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
 use Modules::Create_Exam('createExam');
 use Modules::Useful_Subs('readFile', 'remLinebreak', 'remLeadAndTrailWs');
+
+#init color output module
+Color::Output::Init;
 
 
 #############################################
@@ -35,23 +39,35 @@ if(@ARGV < 2){
     for my $file (@ARGV[1..$#ARGV]){
         push @studentfiles, $file;
     }
-    print "Comparing student files [";
+    print "\nComparing student files [";
     for(@studentfiles){print basename($_).", "}
-    print "]\nwith masterfile [" . basename $masterfile . "]...\n";
+    print "]\nwith masterfile [" . basename $masterfile . "]...\n\n";
 }
 
 
-#store raw content
+#store raw content from masterfile
 my $masterContent = readFile($masterfile);
 
-#store entire parsed exam
+#store entire parsed master exam
 my %masterParsedExam = parseExam($masterContent);
 
-#array with hashes (exam_component)
+#array with hashes (exam_component) from master
 my @masterExamComponent = @{$masterParsedExam{'exam'}->{'exam_component'}};
 
-#get question_and_answers blocks
+#get question_and_answers blocks from master
 my @masterQuestionAnswerBlocks = getQuestionAnswerBlocks(@masterExamComponent);
+
+
+#calculate score and print errors for each student file
+for my $file (@studentfiles){
+    my $studentContent = readFile($file);
+    my %studentParsedExam = parseExam($studentContent);
+    my @studentExamComponent = @{$studentParsedExam{"exam"}->{"exam_component"}};
+    my @studentQuestionAnswerBlocks = getQuestionAnswerBlocks(@studentExamComponent);
+
+    calcScore($file, @studentQuestionAnswerBlocks);
+}
+
 
 sub getQuestionAnswerBlocks(@examComponent){
     my @questionAnswerBlocks;
@@ -89,23 +105,10 @@ sub compare($string1, $string2){
     return distance(normalize($string1), normalize($string2));
 }
 
-##################
-
-my $studentContent = readFile($studentfiles[0]);
-
-my %studentParsedExam = parseExam($studentContent);
-
-my @studentExamComponent = @{$studentParsedExam{'exam'}->{'exam_component'}};
-
-my @studentQuestionAnswerBlocks = getQuestionAnswerBlocks(@studentExamComponent);
-
-##################
-
-calcScore($studentfiles[0], @studentQuestionAnswerBlocks);
 
 #calculate the score of the student exam file
 #compared to the master exam file
-sub calcScore($studentfile, @parsedExam){
+sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
     my @errors;
     my $answeredQuestions = 0;
@@ -132,10 +135,10 @@ sub calcScore($studentfile, @parsedExam){
 
         #check for missing questions
         if(compare( @{$masterHash{"question"}}{"text"}, @{$studentHash{"question"}}{"text"} ) > 0){
-            say "Missing Question found: ". @{$masterHash{"question"}}{"question_number"} . $masterHash{'question'}{'text'};
+            #say "Missing Question found: ". @{$masterHash{"question"}}{"question_number"} . $masterHash{'question'}{'text'};
             $offset++; #increase offset for master
             $missingQuestions++; #increase number of missing questions
-            push @errors, "Missing question found: " . $masterHash{'question'}{'text'};
+            push @errors, "Missing question found: " . remLinebreak $masterHash{'question'}{'text'};
             #%masterHash = %{$masterQuestionAnswerBlocks[$question + $offset]};
         }
 
@@ -187,7 +190,7 @@ sub calcScore($studentfile, @parsedExam){
         }
 
 
-        
+
         ##SCORING
 
         my $correctAnswer = ""; #correct answer
@@ -203,6 +206,7 @@ sub calcScore($studentfile, @parsedExam){
         #check answer from student
         for my $answer (@{$studentHash{"answer"}}){
             #check for marked checkboxes ('X' or 'x')
+            #todo check for other checkboxes too... like [ x] or [X ]
             if($answer->{"checkbox"} eq "[X]" || $answer->{"checkbox"} eq "[x]"){
                 $countX++; #increase counter for amount of checked boxes
 
@@ -213,13 +217,13 @@ sub calcScore($studentfile, @parsedExam){
                 # only if one answer is checked and the comparison results in zero
                 if($countX == 1 && $cmp == 0){
                     $score++;
-                    say "Correct answer: ".$answer->{"text"};
+                    #say "Correct answer: ".$answer->{"text"};
                 }
 
                 #increase answeredQuestions
                 # if a question is answered but not correctly (or multiple answers)
                 if($countX >= 1){
-                    $answeredQuestions++;
+                    $answeredQuestions++; #todo test this
                 }
             }
 
@@ -230,15 +234,32 @@ sub calcScore($studentfile, @parsedExam){
 
     }
 
+
+
+    ##OUTPUT
+
+    #pint student file name with scoring
+    print basename($studentfile);
+    for(0..(90-length(basename($studentfile)))){
+        print ".";
+    }
+    print "$score/$answeredQuestions\n";
+
+
+    #say "\n\tTotal questions not found: $missingQuestions";
+    #say "\tTotal missing or misspelled answers found: $missingAnswers";
+
     #print out errors
     foreach my $error (@errors){
-        say $error;
+        cprint ("\0035   $error\n");   #print errors in red
     }
 
+    cprint ("\x030\n"); #switch back to white color
 
-    say "Total questions not found: $missingQuestions";
-    say "Total missing or misspelled answers found: $missingAnswers";
 
-    say "Score: $score/$answeredQuestions";
+
+
+
+
 
 }
