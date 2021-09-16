@@ -6,8 +6,9 @@ use File::Spec;
 use Time::Moment;
 use File::Basename;
 use Lingua::StopWords ('getStopWords');
-use Text::Levenshtein ('distance');
+use Text::Levenshtein::Damerau ('edistance');
 use Color::Output ('cprint');
+use POSIX;
 
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
@@ -96,7 +97,7 @@ sub normalize($string){
 
 #compare two normalized string
 sub compare($string1, $string2){
-    return distance(normalize($string1), normalize($string2));
+    return edistance(normalize($string1), normalize($string2));
 }
 
 
@@ -125,11 +126,14 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
         my %studentHash = %{$studentQuestionAnswerBlocks[$question]};
 
 
-
         ### MISSING QUESTIONS
 
+
+        #maximal question distance: 10% the length of the normalized original question
+        my $maxQuestionDistance = floor(length(normalize(@{$masterHash{"question"}}{"text"}))*0.1);
+
         #check for missing questions
-        if(compare( @{$masterHash{"question"}}{"text"}, @{$studentHash{"question"}}{"text"} ) > 0){
+        if(compare( @{$masterHash{"question"}}{"text"}, @{$studentHash{"question"}}{"text"} ) > $maxQuestionDistance){
             $offset++; #increase offset for master
             $missingQuestions++; #increase number of missing questions
             push @errors, "Missing question found: " . remLinebreak $masterHash{'question'}{'text'};
@@ -165,10 +169,15 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
         #compare answers - check for missing or misspelled answers
         for(my $i=0; $i<@masterAnswers; $i++){
+
+            #maximal answer distance: 10% the length of the normalized original answer
+            my $maxAnswerDistance = floor(length(normalize($masterAnswers[$i]))*0.1);
+
             #compare answers
             my $cmp = compare($masterAnswers[$i], $studentAnswers[$i-$answerOffset]);
-            #if the comparison results in a distance bigger than zero
-             if($cmp > 0){
+
+            #if the comparison results in a distance bigger than the maximal answer distance
+             if($cmp > $maxAnswerDistance){
                  $missingAnswers++; #increase missing/misspelled answers
                  #if the distance is equal or bigger than the master answer, then the student answer is missing
                  if($cmp >= length(normalize($masterAnswers[$i]))){
