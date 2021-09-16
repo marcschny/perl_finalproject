@@ -250,6 +250,6 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
     }
 
     cprint ("\x030\n"); #switch back to white color
-    
+
 
 }

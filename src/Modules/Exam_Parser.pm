@@ -53,7 +53,7 @@ sub parseExam($content){
         (?: \N* \S \N* \n )*?   # Extra lines of text must contain a non-space
 
     <token: checkbox>
-        \[ . \]
+        \[\s*.*?\s*\]
 
     <token: decoration>
         \N* \n
