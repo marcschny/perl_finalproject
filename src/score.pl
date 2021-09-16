@@ -14,23 +14,29 @@ use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
 use Modules::Create_Exam('createExam');
 use Modules::Useful_Subs('readFile', 'remLinebreak', 'remLeadAndTrailWs');
+use Modules::Statistics('statistics');
 
 #init color output module
 Color::Output::Init;
 
 
 #############################################
-#   MAIN TASK: PART 1B                      #
+#   MAIN TASK: PART 1B & 2                  #
 #                                           #
-#   This file compares student exams with   #
+#   - This file compares student exams with #
 #   the master exam and scores the          #
-#   student exams                           #
+#   student exams.                          #
+#   - It also reports missing questions     #
+#   and missing or misspelled answers       #
+#   - And it prints out the statistics      #
+#   from Modules::Statistics                #
 #############################################
 
 
 #input vars
 my $masterfile;
 my @studentfiles;
+my $numberOfFiles;
 
 #first check input (at least 2 args must been provided)
 if(@ARGV < 2){
@@ -54,11 +60,16 @@ my @masterQuestionAnswerBlocks = getQuestionAnswerBlocks(@masterExamComponent); 
 
 #calculate score and print errors for each student file
 for my $file (@studentfiles){
+    #read and parse student file
     my $studentContent = readFile($file);
     my %studentParsedExam = parseExam($studentContent);
     my @studentExamComponent = @{$studentParsedExam{"exam"}->{"exam_component"}};
     my @studentQuestionAnswerBlocks = getQuestionAnswerBlocks(@studentExamComponent);
 
+    #increase number of files
+    $numberOfFiles++;
+
+    #calculate the score, prints results and statistics
     calcScore($file, @studentQuestionAnswerBlocks);
 }
 
@@ -99,6 +110,9 @@ sub normalize($string){
 sub compare($string1, $string2){
     return edistance(normalize($string1), normalize($string2));
 }
+
+my @answeredQuestions;
+my @scores;
 
 
 #calculate the score of the student exam file
@@ -166,6 +180,7 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
         #store current question_number
         my $questionNumber = @{$masterHash{"question"}}{"question_number"};
+
 
         #compare answers - check for missing or misspelled answers
         for(my $i=0; $i<@masterAnswers; $i++){
@@ -238,6 +253,12 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
     }
 
+    #store number of answered question in array (for each test)
+    push @answeredQuestions, $answeredQuestions;
+
+    #store score of correct answers in array (for each test)
+    push @scores, $score;
+
 
 
     ##OUTPUT
@@ -260,5 +281,8 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
     cprint ("\x030\n"); #switch back to white color
 
-
 }
+
+
+#print out statistics
+statistics(\@answeredQuestions, \@scores, $numberOfFiles);
