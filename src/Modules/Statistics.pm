@@ -180,7 +180,7 @@ sub belowExpectations($studentScores, $numberOfQuestions){
 
     ## OUTPUTS
 
-    say "Results below expectation...\n";
+    say "Results below expectations...\n";
 
     #print out expectation 1
     print " Score < 50%: ". scalar @scoreBelow50p . " student";
@@ -199,7 +199,7 @@ sub belowExpectations($studentScores, $numberOfQuestions){
     say "\n";   #just a line-break
 
     #print out expectation 3
-    print " score < 1$sigmaSymbol below average score [$sigmaSymbol=$standardDeviation, $averageSymbol=$averageCorrectAnswered]: ". scalar @standardDeviationBelowAverage . " student";
+    print " Score < 1$sigmaSymbol below average score [$sigmaSymbol=$standardDeviation, $averageSymbol=$averageCorrectAnswered]: ". scalar @standardDeviationBelowAverage . " student";
     scalar @lessThan8Questions != 1 ? print "s" : "";
     for(@standardDeviationBelowAverage){
         print "\n   $_";

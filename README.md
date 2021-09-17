@@ -1,4 +1,4 @@
-# Final Project
+# Final Project (Perl)
 
 ### Team
 - Marc Schnydrig
@@ -26,34 +26,22 @@
 ---
 
 ### Used CPAN-Modules
-- Data::Show                     
-to show content of variables such as hashes
-- Cwd                            
-get pathname of current working directory
-- File::Spec                     
-portably perform operations on file names
-- Time::Moment                   
-represents a date and time of day with an offset from UTC
-- File::Basename                
-parse file paths into directory, filename and suffix
-- Lingua::StopWords              
-stop words for several languages
-- Text::Levenshtein::Damerau  
-Damerau Levenshtein edit distance
-- Color::Output  
-to give color to the output
-- POSIX  
-several functions
-- Regexp::Grammars  
-grammatical parsing features
-- Statistics::Basic::Stddev  
-calculate standard deviation
-- List::Util  
-to shuffle a list
+- Data::Show - to show content of variables such as hashes
+- Cwd - get pathname of current working directory
+- File::Spec - portably perform operations on file names
+- Time::Moment - represents a date and time of day with an offset from UTC
+- File::Basename - parse file paths into directory, filename and suffix
+- Lingua::StopWords - stop words for several languages
+- Text::Levenshtein::Damerau - Damerau Levenshtein edit distance
+- Color::Output - to give color to the output
+- POSIX - several mathematical functions
+- Regexp::Grammars - grammatical parsing features
+- Statistics::Basic::Stddev - calculate standard deviation
+- List::Util - to shuffle a list
 
 ---
 
-### Criteria for significantly expectations
+### Criteria for significant expectations
 - Criteria 1: show all students (files) with a score less than 50% (score < 50%)
 - Criteria 2: show all students (files) who answered less than 25% of the entire exam (answered questions < 25%)
 - Criteria 3: show all students (files) who are more than one standard deviation below the average score
@@ -61,15 +49,15 @@ to shuffle a list
 ---
 
 ### Get Started
-- To run the scripts, perl v5.3.2 has to be installed
+- To run the scripts, perl v5.3.2 must be installed
 - Also the above-mentioned CPAN-modules must be installed
 - Then the line `use lib '...';` has to be replaced with your current lib-directory (probably just `use lib 'lib';` should work) in both files [src/randomize.pl](src/randomize.pl) and [src/score.pl](src/score.pl) !
 - And now you can run either:
-  - `perl src/randomize <path_of_master_file>` to create a new empty exam file with randomized answers
+  - `perl src/randomize.pl <path_of_master_file>` to create a new empty exam file with randomized answers
   - or:
-  - `perl src/score <path_of_master_file> <paths_of_student_files>` to score the student files, print out missing questions and answers, and see the statistics
+  - `perl src/score.pl <path_of_master_file> <paths_of_student_files>` to score the student files, print out missing questions and answers, and see the statistics
 
-
+---
 ### Remark
 The file [src/score.pl](src/score.pl) is not working correctly. More specifically, the checking of missing or incorrect answers does not work quite precisely.
 The problem lies in sorting the answers: in the case of incorrect answers, the wrong answers are sometimes compared with each other after sorting them alphabetically.
