@@ -12,7 +12,7 @@
 
 ### Architecture
 - There are two main files
-    - [src/randomize.pl](src/randomized.pl) creates the empty exam file from a master file
+    - [src/randomize.pl](src/randomized.pl) creates the empty exam file from a master file (Part 1a)
     - [src/score.pl](src/score.pl) 
       - compares student exams with the master exam and scores the student exams (Part 1b)
       - reports missing questions and missing or misspelled answers (Part 2)
@@ -42,9 +42,9 @@
 ---
 
 ### Criteria for significant expectations
-- Criteria 1: show all students (files) with a score less than 50% (score < 50%)
-- Criteria 2: show all students (files) who answered less than 25% of the entire exam (answered questions < 25%)
-- Criteria 3: show all students (files) who are more than one standard deviation below the average score
+- Criteria 1: only show students with a score less than 50% (score < 50%)
+- Criteria 2: only show students who answered less than 25% of the entire exam (answered questions < 25%)
+- Criteria 3: only show students who are more than one standard deviation below the average score
 
 ---
 
@@ -59,6 +59,6 @@
 
 ---
 ### Remark
-The file [src/score.pl](src/score.pl) is not working correctly. More specifically, the checking of missing or incorrect answers does not work quite precisely.
+The file [src/score.pl](src/score.pl) is not working correctly (part 1b/2). More specifically, the checking of missing or incorrect answers does not work quite precisely.
 The problem lies in sorting the answers: in the case of incorrect answers, the wrong answers are sometimes compared with each other after sorting them alphabetically.
 By the time I realized this it was too late to adjust anything, so I left it as is and tried to improve it a little more.
