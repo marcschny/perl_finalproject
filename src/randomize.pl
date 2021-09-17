@@ -8,6 +8,7 @@ use File::Spec;
 use Time::Moment;
 use File::Basename;
 
+#custom modules
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
 use Modules::Create_Exam('createExam');
@@ -22,6 +23,7 @@ use Modules::Useful_Subs('readFile');
 #############################################
 
 
+#masterfile
 my $masterfile;
 
 #check for input
@@ -41,16 +43,17 @@ my $intro = parseIntro($content);
 #store entire parsed exam
 my %parsedExam = parseExam($content);
 
-#show (%parsedExam);
-
 #store new created exam (w/ randomized answers)
 my $newExam = createExam($intro, %parsedExam);
 
-#say $newExam;
-
+#save file
 saveFile($newExam);
 
 #subroutine to save the new generated file
+# parameters:
+# - $examFile: newly created exam file
+# return:
+# - nothing (void)
 sub saveFile($examFile){
 
     #store current volume, directory and filename
@@ -72,16 +75,20 @@ sub saveFile($examFile){
     #new filename
     my $newFilename = getOutputFilename();
 
-    #create empty exam file in new 'Generated'-Directory
+    #create empty exam file in new 'Generated'-Directory (or die)
     open(my $fh, ">", qq{$projectRoot/Generated/$newFilename})
         or die "Cannot open directory $projectRoot/Generated: $!";
-    print $fh $examFile;
+
+    #close file handler
     close($fh);
 
 }
 
 #subroutine to get the new filename
-#returns a string consisting of the formatted datetime and the original filename
+# parameters:
+# - none
+# return:
+# - a string consisting of the formatted datetime and the original filename
 sub getOutputFilename(){
     #get datetime now
     my $dateTimeNow = Time::Moment->now;

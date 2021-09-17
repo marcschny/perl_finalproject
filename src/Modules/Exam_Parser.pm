@@ -8,6 +8,7 @@ use Exporter ('import');
 use Regexp::Grammars;
 use Data::Show;
 
+#list of exported subroutines
 our @EXPORT = ('parseExam', 'parseIntro');
 
 
@@ -18,6 +19,7 @@ our @EXPORT = ('parseExam', 'parseIntro');
 
 
 
+#parse an entire exam
 sub parseExam($content){
 
     my $exam_parser = qr{
@@ -73,6 +75,10 @@ sub parseExam($content){
 }
 
 #parse the intro of the master file
+# parameters:
+# - $content: file content to be parsed
+# return:
+# - $1: parsed intro from content
 sub parseIntro($content) {
     $content =~ m/([^_]*[\n]*)/;
     return "$1";

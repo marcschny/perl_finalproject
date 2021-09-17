@@ -7,7 +7,9 @@ use experimentals;
 use Exporter ('import');
 use List::Util ('shuffle');
 
+#list of exported subroutnies
 our @EXPORT = ('createExam');
+
 
 #############################################
 #   This module creates a new exam file     #
@@ -15,7 +17,12 @@ our @EXPORT = ('createExam');
 #############################################
 
 
-
+#create an exam
+# parameters:
+# - $intro: the intro content of an exam
+# - %parsedExam: the parsed exam as a hash
+# return:
+# - $newFile: new created exam file (w/ randomized answers)
 sub createExam($intro, %parsedExam){
 
     #decoration line

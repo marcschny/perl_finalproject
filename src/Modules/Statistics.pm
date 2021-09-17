@@ -9,27 +9,36 @@ use List::Util ('shuffle');
 use POSIX;
 use Statistics::Basic ('stddev');
 
-
+#custom modules
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Useful_Subs('beforeSlash', 'afterSlash', 'remQuotes');
 
-
+#list of exported subroutines
 our @EXPORT = ('statistics', 'belowExpectations');
 
 
 #############################################
-#   This module provides the subroutine     #
+#   This module provides the subroutines    #
 #   used for statistics (part 3)            #
 #############################################
 
+
+
 #init globally used vars
 my ($averageAnswered, $averageCorrectAnswered);
+
 #special characters
 my $averageSymbol = chr(157);
 my $sigmaSymbol = chr(208);
 
 
 #print out statistics: average, minimum and maximum
+# parameters:
+# - $answeredQuestionsRef: reference to @answeredQuestions
+# - $correctAnsweredQuestionsRef: reference to @scores
+# - $numberOfExams: the number of exams
+# return:
+# - nothing (void)
 sub statistics($answeredQuestionsRef, $correctAnsweredQuestionsRef, $numberOfExams){
 
     #dereference arrays
@@ -78,7 +87,7 @@ sub statistics($answeredQuestionsRef, $correctAnsweredQuestionsRef, $numberOfExa
     ## OUTPUTS
 
     #print statistics title
-    say "Statistics...\n";
+    say "\nStatistics...\n";
 
     #print number of exams
     say " Number of exams: $numberOfExams\n";
@@ -112,8 +121,12 @@ sub statistics($answeredQuestionsRef, $correctAnsweredQuestionsRef, $numberOfExa
 
 
 
-
-
+#print out 'below expectations'-statistics
+# parameters:
+# - $studentScores: reference to %studentScores
+# - $numberOfQuestions: number of questions
+# returns
+# - nothing (void)
 sub belowExpectations($studentScores, $numberOfQuestions){
 
     #dereference hash
@@ -131,9 +144,10 @@ sub belowExpectations($studentScores, $numberOfQuestions){
     my @scores;
     my $standardDeviation;
 
+    #loop through studentScores-hash
     for my $key (keys %studentScores){
 
-        #exp 1
+        #EXPECTATION 1 (score < 50%)
         #store the score
         $answeredCorrectly = beforeSlash($studentScores{$key});
         #store the number of answered questions
@@ -143,17 +157,17 @@ sub belowExpectations($studentScores, $numberOfQuestions){
             push @scoreBelow50p, "$key ($studentScores{$key})";
         }
 
-        #exp 2 (less than 25% of questions answered)
+        #EXPECTATION 2 (less than 25% of questions answered)
         if(($answered/$numberOfQuestions)*100 < 25){
             push @lessThan8Questions, "$key ($studentScores{$key})";
         }
 
-        #push each score in an array (exp 3)
+        #push each score in an array (EXPECTATION 3)
         push @scores, $answeredCorrectly;
 
     }
 
-    #exp 3 (more than one standard deviation below the average score)
+    #EXPECTATION 3 (more than one standard deviation below the average score)
     $standardDeviation = stddev(@scores); #get standard deviation
     for my $key (keys %studentScores){
         my $score = beforeSlash($studentScores{$key});
@@ -163,8 +177,8 @@ sub belowExpectations($studentScores, $numberOfQuestions){
     }
 
 
-    ## OUTPUTS
 
+    ## OUTPUTS
 
     say "Results below expectation...\n";
 
@@ -182,7 +196,7 @@ sub belowExpectations($studentScores, $numberOfQuestions){
     for(@lessThan8Questions){
         print "\n   $_";
     }
-    say "\n";
+    say "\n";   #just a line-break
 
     #print out expectation 3
     print " score < 1$sigmaSymbol below average score [$sigmaSymbol=$standardDeviation, $averageSymbol=$averageCorrectAnswered]: ". scalar @standardDeviationBelowAverage . " student";
@@ -191,8 +205,7 @@ sub belowExpectations($studentScores, $numberOfQuestions){
         print "\n   $_";
     }
 
-
-    say "\n";
+    say "\n"; #just a line-break
 }
 
 

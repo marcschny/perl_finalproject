@@ -10,6 +10,7 @@ use Text::Levenshtein::Damerau ('edistance');
 use Color::Output ('cprint');
 use POSIX;
 
+#custom modules
 use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
 use Modules::Create_Exam('createExam');
@@ -20,17 +21,17 @@ use Modules::Statistics('statistics', 'belowExpectations');
 Color::Output::Init;
 
 
-#############################################
-#   MAIN TASK: PART 1B & 2 & 3              #
-#                                           #
-#   - This file compares student exams with #
-#   the master exam and scores the          #
-#   student exams.                          #
-#   - It also reports missing questions     #
-#   and missing or misspelled answers       #
-#   - And it prints out the statistics      #
-#   from Modules::Statistics                #
-#############################################
+###############################################
+#   MAIN TASK: PART 1B & 2 & 3                #
+#                                             #
+#   - (1b) This file compares student exams   #
+#   with the master exam and scores the       #
+#   student exams.                            #
+#   - (2) It also reports missing questions   #
+#   and missing or misspelled answers         #
+#   - (3) And it prints out the statistics    #
+#   from Modules::Statistics                  #
+###############################################
 
 
 #input vars
@@ -44,7 +45,7 @@ my @scores;
 my %studentScores;
 
 
-#first check input (at least 2 args must been provided)
+#first check input (at least 2 args must be provided)
 if(@ARGV < 2){
     die "You need to provide at least 2 arguments: a masterfile and x student files!";
 }else{
@@ -82,6 +83,10 @@ for my $file (@studentfiles){
 
 
 #get question_and_answers-blocks from exam_components
+# parameters:
+# - @examComponent
+# return:
+# - Array with all question-answer-blocks
 sub getQuestionAnswerBlocks(@examComponent){
     my @questionAnswerBlocks;
     foreach my $elem(@examComponent){
@@ -97,6 +102,10 @@ sub getQuestionAnswerBlocks(@examComponent){
 # -unicode case-folded lower case
 # -remove stopwords
 # -remove leading and trailing whitespaces
+# parameters:
+# - $string: string to be normalized
+# return:
+# - normalized string
 sub normalize($string){
     my $allStopWords = getStopWords('en');
 
@@ -113,7 +122,12 @@ sub normalize($string){
 }
 
 
-#compare two normalized string
+#compare two normalized string (with edistance)
+# parameters:
+# - $string1: first string (usually from master)
+# - $string2: second string (usually from student)
+# return:
+# - edistance from two strings
 sub compare($string1, $string2){
     return edistance(normalize($string1), normalize($string2));
 }
@@ -121,8 +135,12 @@ sub compare($string1, $string2){
 
 
 #calculate the score of the student exam file
-#compared to the master exam file
-#print outputs
+#compared to the master exam file and print outputs
+# parameters:
+# - $studentfile: path to the student exam file
+# - @studentQuestionAnswerBlocks: question-answer-blocks from student
+# return:
+# - nothing (void)
 sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
     my @errors;
@@ -281,9 +299,6 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
     print "$score/$answeredQuestions\n";
 
 
-    #say "\n\tTotal questions not found: $missingQuestions";
-    #say "\tTotal missing or misspelled answers found: $missingAnswers";
-
     #print out errors in red
     foreach my $error (@errors){
         cprint ("\0035   $error\n");
@@ -297,7 +312,7 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 #print out statistics
 statistics(\@answeredQuestions, \@scores, $numberOfFiles);
 
-#print out below expectations
+#print out 'below expectation'-statistics
 belowExpectations(\%studentScores, $#masterQuestionAnswerBlocks+1);
 
 
