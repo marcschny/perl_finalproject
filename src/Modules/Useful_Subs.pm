@@ -8,7 +8,7 @@ use Exporter ('import');
 use Regexp::Grammars;
 use Data::Show;
 
-our @EXPORT = ('readFile', 'remLinebreak', 'remLeadAndTrailWs');
+our @EXPORT = ('readFile', 'remLinebreak', 'remLeadAndTrailWs', 'beforeSlash', 'afterSlash', 'remQuotes');
 
 
 #############################################
@@ -35,5 +35,23 @@ sub remLinebreak($string){
 #remove leading and trailing whitespaces
 sub remLeadAndTrailWs($string){
     $string =~ s/^\s+|\s+$//g;
+    return $string;
+}
+
+#get everything before a slash (by removing the slash and everything after the slash)
+sub beforeSlash($string){
+    $string =~ s/\/.*//g;
+    return $string;
+}
+
+#get everything after a slash (by removing the slash and everything before the slash)
+sub afterSlash($string){
+    $string =~ s/.*\///g;
+    return $string;
+}
+
+#remove quotes
+sub remQuotes($string){
+    $string =~ s/"//g;
     return $string;
 }

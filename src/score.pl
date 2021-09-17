@@ -14,14 +14,14 @@ use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
 use Modules::Exam_Parser('parseExam', 'parseIntro');
 use Modules::Create_Exam('createExam');
 use Modules::Useful_Subs('readFile', 'remLinebreak', 'remLeadAndTrailWs');
-use Modules::Statistics('statistics');
+use Modules::Statistics('statistics', 'belowExpectations');
 
 #init color output module
 Color::Output::Init;
 
 
 #############################################
-#   MAIN TASK: PART 1B & 2                  #
+#   MAIN TASK: PART 1B & 2 & 3              #
 #                                           #
 #   - This file compares student exams with #
 #   the master exam and scores the          #
@@ -36,7 +36,13 @@ Color::Output::Init;
 #input vars
 my $masterfile;
 my @studentfiles;
+
+#statistic vars
 my $numberOfFiles;
+my @answeredQuestions;
+my @scores;
+my %studentScores;
+
 
 #first check input (at least 2 args must been provided)
 if(@ARGV < 2){
@@ -60,6 +66,7 @@ my @masterQuestionAnswerBlocks = getQuestionAnswerBlocks(@masterExamComponent); 
 
 #calculate score and print errors for each student file
 for my $file (@studentfiles){
+
     #read and parse student file
     my $studentContent = readFile($file);
     my %studentParsedExam = parseExam($studentContent);
@@ -111,8 +118,6 @@ sub compare($string1, $string2){
     return edistance(normalize($string1), normalize($string2));
 }
 
-my @answeredQuestions;
-my @scores;
 
 
 #calculate the score of the student exam file
@@ -251,6 +256,7 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
         }
 
+
     }
 
     #store number of answered question in array (for each test)
@@ -258,6 +264,10 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
     #store score of correct answers in array (for each test)
     push @scores, $score;
+
+    #store studentfile and score in a hash (for each test)
+    my $student = basename($studentfile);
+    $studentScores{$student} = "$score/$answeredQuestions";
 
 
 
@@ -286,3 +296,8 @@ sub calcScore($studentfile, @studentQuestionAnswerBlocks){
 
 #print out statistics
 statistics(\@answeredQuestions, \@scores, $numberOfFiles);
+
+#print out below expectations
+belowExpectations(\%studentScores, $#masterQuestionAnswerBlocks+1);
+
+

@@ -7,14 +7,26 @@ use experimentals;
 use Exporter ('import');
 use List::Util ('shuffle');
 use POSIX;
+use Statistics::Basic ('stddev');
 
-our @EXPORT = ('statistics');
+
+use lib 'C:\Users\schny\Desktop\perl\Project\perl_finalproject\src';
+use Modules::Useful_Subs('beforeSlash', 'afterSlash', 'remQuotes');
+
+
+our @EXPORT = ('statistics', 'belowExpectations');
+
 
 #############################################
 #   This module provides the subroutine     #
 #   used for statistics (part 3)            #
 #############################################
 
+#init globally used vars
+my ($averageAnswered, $averageCorrectAnswered);
+#special characters
+my $averageSymbol = chr(157);
+my $sigmaSymbol = chr(208);
 
 
 #print out statistics: average, minimum and maximum
@@ -32,7 +44,7 @@ sub statistics($answeredQuestionsRef, $correctAnsweredQuestionsRef, $numberOfExa
     #average questions answered
     my $answeredTotal = 0;
     for(@answeredQuestions){ $answeredTotal += $_; }
-    my $averageAnswered = floor($answeredTotal/$numberOfExams);
+    $averageAnswered = floor($answeredTotal/$numberOfExams);
     
     #minimum and maximum answered questions
     my $minAnswered = $answeredQuestions[0];
@@ -48,7 +60,7 @@ sub statistics($answeredQuestionsRef, $correctAnsweredQuestionsRef, $numberOfExa
     #average questions answered correctly
     my $correctAnsweredTotal = 0;
     for(@correctAnsweredQuestions){ $correctAnsweredTotal += $_; }
-    my $averageCorrectAnswered = floor($correctAnsweredTotal/$numberOfExams);
+    $averageCorrectAnswered = floor($correctAnsweredTotal/$numberOfExams);
     
     #minimum and maximum questions answered correctly
     my $minCorrectAnswered = $correctAnsweredQuestions[0];
@@ -96,7 +108,92 @@ sub statistics($answeredQuestionsRef, $correctAnsweredQuestionsRef, $numberOfExa
     $countMaxCorrectAnswered == 1 ? print ")" : print "s)";
 
     say "\n"; #just a break-line
-
 }
+
+
+
+
+
+sub belowExpectations($studentScores, $numberOfQuestions){
+
+    #dereference hash
+    my %studentScores = %{$studentScores};
+
+    #expectation 1: score < 50%
+    my @scoreBelow50p;
+    my ($answered, $answeredCorrectly);
+
+    #expectation 2: answered questions < 25% (25% of 30 =~ 8 => less than 8 questions answered in total)
+    my @lessThan8Questions;
+
+    #expectation 3: more than one standard deviation below the average score
+    my @standardDeviationBelowAverage;
+    my @scores;
+    my $standardDeviation;
+
+    for my $key (keys %studentScores){
+
+        #exp 1
+        #store the score
+        $answeredCorrectly = beforeSlash($studentScores{$key});
+        #store the number of answered questions
+        $answered = afterSlash($studentScores{$key});
+        #condition for exp 1 (score < 50%)
+        if(($answeredCorrectly/$answered)*100 < 50){
+            push @scoreBelow50p, "$key ($studentScores{$key})";
+        }
+
+        #exp 2 (less than 25% of questions answered)
+        if(($answered/$numberOfQuestions)*100 < 25){
+            push @lessThan8Questions, "$key ($studentScores{$key})";
+        }
+
+        #push each score in an array (exp 3)
+        push @scores, $answeredCorrectly;
+
+    }
+
+    #exp 3 (more than one standard deviation below the average score)
+    $standardDeviation = stddev(@scores); #get standard deviation
+    for my $key (keys %studentScores){
+        my $score = beforeSlash($studentScores{$key});
+        if($score < $averageCorrectAnswered-$standardDeviation){
+            push @standardDeviationBelowAverage, "$key ($studentScores{$key})";
+        }
+    }
+
+
+    ## OUTPUTS
+
+
+    say "Results below expectation...\n";
+
+    #print out expectation 1
+    print " Score < 50%: ". scalar @scoreBelow50p . " student";
+    scalar @scoreBelow50p != 1 ? print "s" : "";
+    for(@scoreBelow50p){
+        print "\n   $_";
+    }
+    say "\n";
+
+    #print out expectation 2
+    print " Answered questions < 25%: ". scalar @lessThan8Questions . " student";
+    scalar @lessThan8Questions != 1 ? print "s" : "";
+    for(@lessThan8Questions){
+        print "\n   $_";
+    }
+    say "\n";
+
+    #print out expectation 3
+    print " score < 1$sigmaSymbol below average score [$sigmaSymbol=$standardDeviation, $averageSymbol=$averageCorrectAnswered]: ". scalar @standardDeviationBelowAverage . " student";
+    scalar @lessThan8Questions != 1 ? print "s" : "";
+    for(@standardDeviationBelowAverage){
+        print "\n   $_";
+    }
+
+
+    say "\n";
+}
+
 
 1; #return true
